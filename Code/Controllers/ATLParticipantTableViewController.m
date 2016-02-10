@@ -140,10 +140,11 @@ NSString *const ATLParticipantTableViewControllerTitle = @"Participants";
 
 - (void)setParticipants:(NSSet *)participants
 {
-    if (self.hasAppeared) {
-        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Cannot change participants after view has been presented" userInfo:nil];
-    }
     _participants = participants;
+
+    self.unfilteredDataSet = [ATLParticipantTableDataSet dataSetWithParticipants:participants sortType:self.sortType];
+
+    [self.tableView reloadData];
 }
 
 - (void)setAllowsMultipleSelection:(BOOL)allowsMultipleSelection
