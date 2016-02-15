@@ -111,6 +111,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     _marksMessagesAsRead = YES;
     _shouldDisplayAvatarItemForOneOtherParticipant = NO;
     _shouldDisplayAvatarItemForAuthenticatedUser = NO;
+    _shouldCreateDistinctConversation = YES;
     _avatarItemDisplayFrequency = ATLAvatarItemDisplayFrequencySection;
     _typingParticipantIDs = [NSMutableOrderedSet new];
     _sectionHeaders = [NSHashTable weakObjectsHashTable];
@@ -1160,7 +1161,8 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     if (conversation) return conversation;
     
     BOOL deliveryReceiptsEnabled = participants.count <= 5;
-    NSDictionary *options = @{LYRConversationOptionsDeliveryReceiptsEnabledKey: @(deliveryReceiptsEnabled)};
+    NSDictionary *options = @{LYRConversationOptionsDeliveryReceiptsEnabledKey: @(deliveryReceiptsEnabled),
+                              LYRConversationOptionsDistinctByParticipantsKey: @(self.shouldCreateDistinctConversation)};
     conversation = [self.layerClient newConversationWithParticipants:participantIdentifiers options:options error:nil];
     return conversation;
 }
