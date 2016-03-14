@@ -1156,9 +1156,13 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         conversation = [self.dataSource conversationViewController:self conversationWithParticipants:participants];
         if (conversation) return conversation;
     }
+
     NSSet *participantIdentifiers = [participants valueForKey:@"participantIdentifier"];
-    conversation = [self existingConversationWithParticipantIdentifiers:participantIdentifiers];
-    if (conversation) return conversation;
+
+    if (self.shouldCreateDistinctConversation) {
+        conversation = [self existingConversationWithParticipantIdentifiers:participantIdentifiers];
+        if (conversation) return conversation;
+    }
     
     BOOL deliveryReceiptsEnabled = participants.count <= 5;
     NSDictionary *options = @{LYRConversationOptionsDeliveryReceiptsEnabledKey: @(deliveryReceiptsEnabled),
