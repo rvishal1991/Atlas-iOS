@@ -483,7 +483,10 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
             NSSet *participantIdentifiers = [filteredParticipants valueForKey:@"participantIdentifier"];
             
             LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
-            query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:participantIdentifiers];
+
+            LYRPredicate *participantsPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:participantIdentifiers];
+            LYRPredicate *titlePredicate = [LYRPredicate predicateWithProperty:@"metadata.title" predicateOperator:LYRPredicateOperatorIsEqualTo value:searchString];
+            query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[participantsPredicate, titlePredicate]];
             query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
             
             NSError *error;
