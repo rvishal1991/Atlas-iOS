@@ -463,7 +463,6 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     NSMutableOrderedSet *mutableParticipants = [participants mutableCopy];
     [mutableParticipants removeObject:participants.firstObject];
 
-    NSUInteger toParticipantsCount = mutableParticipants.count;
     __block NSUInteger remainingParticipants = mutableParticipants.count;
     [mutableParticipants enumerateObjectsUsingBlock:^(id<ATLParticipant> participant, NSUInteger idx, BOOL *stop) {
         NSString *othersString = [self otherStringWithRemainingParticipants:remainingParticipants];
@@ -479,7 +478,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
                 *stop = YES;
             }
         } else {
-            disabledString = [NSString stringWithFormat:@"%lu participants", (unsigned long)toParticipantsCount];
+            disabledString = [NSString stringWithFormat:@"%lu participants", (unsigned long)participants.count];
             *stop = YES;
         }
     }];
