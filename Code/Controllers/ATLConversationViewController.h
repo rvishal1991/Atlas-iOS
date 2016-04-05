@@ -303,4 +303,8 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  */
 @property (nonatomic) ATLAvatarItemDisplayFrequency avatarItemDisplayFrequency;
 
+// Expose these methods for overriding
+- (void)displayImagePickerWithSourceType:(UIImagePickerControllerSourceType)sourceType;
+- (void)captureLastPhotoTaken;
+
 @end
