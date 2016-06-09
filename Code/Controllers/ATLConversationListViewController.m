@@ -145,7 +145,7 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
         self.tableView.contentOffset = CGPointMake(0, contentOffset);
         self.tableView.rowHeight = self.rowHeight;
         [self.tableView registerClass:self.cellClass forCellReuseIdentifier:ATLConversationCellReuseIdentifier];
-        if (self.allowsEditing) [self addEditButton];
+       // if (self.allowsEditing) [self addEditButton];
     }
     
     if (!self.queryController) {
