@@ -161,9 +161,9 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  @abstract Asks the data source to configure the default query used to fetch content for the controller if necessary.
  @discussion The `LYRConversationViewController` uses the following default query:
  
-     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
-     query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];
-     query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
+ LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
+ query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];
+ query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
  
  Applications that require advanced query configuration can do so by implementing this data source method.
  
@@ -180,7 +180,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  @abstract The `ATLConversationViewController` class presents an interface that provides for displaying
  a Layer conversation and the ability to send messages. The controller's design and functionality closely correlates with
  the conversation view controller in Messages.
-*/
+ */
 @interface ATLConversationViewController : ATLBaseConversationViewController <ATLAddressBarViewControllerDelegate, ATLMessageInputToolbarDelegate, UIActionSheetDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LYRQueryControllerDelegate>
 
 ///---------------------------------------
@@ -307,4 +307,5 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 - (void)displayImagePickerWithSourceType:(UIImagePickerControllerSourceType)sourceType;
 - (void)captureLastPhotoTaken;
 
+@property (strong,nonatomic)NSMutableArray *arrSpotlight;
 @end

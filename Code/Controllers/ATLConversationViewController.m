@@ -30,6 +30,7 @@
 #import "ATLConversationDataSource.h"
 #import "ATLMediaAttachment.h"
 #import "ATLLocationManager.h"
+#import <CoreSpotlight/CoreSpotlight.h>
 
 @import AVFoundation;
 
@@ -143,6 +144,8 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _arrSpotlight = [[NSMutableArray alloc]init];
     
     if (!self.conversationDataSource) {
         [self fetchLayerMessages];
@@ -324,8 +327,63 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     if ([self.delegate respondsToSelector:@selector(conversationViewController:configureCell:forMessage:)]) {
         [self.delegate conversationViewController:self configureCell:cell forMessage:message];
     }
+    
+    
+    
+    NSDictionary *dict = [[NSDictionary alloc]initWithObjectsAndKeys:message,@"message",[self participantNameForMessage:message],@"member",nil];
+    
+    
+    if([message.parts[0].MIMEType isEqualToString:@"text/plain"]){
+        if(![_arrSpotlight containsObject:dict]){
+            [_arrSpotlight addObject:dict];
+        }
+    }
+    
+    
+    if([self.conversationDataSource.queryController numberOfObjectsInSection:0] == indexPath.section){
+        [self addContentSpotlight:_arrSpotlight];
+    }
+    
+    
     return cell;
 }
+
+#pragma mark - spotLight
+
+
+-(void)addContentSpotlight:(NSMutableArray *)arrContent{
+    
+    NSString *domainIdentifier = @"Chat";
+    
+    NSMutableArray *arrSearchableData = [[NSMutableArray alloc]init];
+    
+    for(NSDictionary *docobject in arrContent) {
+        
+        CSSearchableItemAttributeSet *attibuteSet = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:(__bridge NSString *)kUTTypeItem];
+        LYRMessage *message =[docobject valueForKey:@"message"];
+        
+        NSString *text = [[NSString alloc] initWithData:message.parts[0].data encoding:NSUTF8StringEncoding];
+        
+        attibuteSet.title = [docobject valueForKey:@"member"];
+        attibuteSet.contentDescription = text ;
+        attibuteSet.keywords = @[text];
+        
+        CSSearchableItem *item = [[CSSearchableItem alloc] initWithUniqueIdentifier:[NSString stringWithFormat:@"%@||||Chat",text]domainIdentifier:domainIdentifier attributeSet:attibuteSet];
+        [arrSearchableData addObject:item];
+    }
+    
+    [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:(arrSearchableData) completionHandler:^(NSError *error) {
+        if(error){
+            NSLog(@"%@",[error localizedDescription]);
+        }else{
+            NSLog(@"items were added succesfully");
+        }
+    }];
+    
+}
+
+
+
 
 #pragma mark - UICollectionViewDelegate
 
@@ -1156,9 +1214,9 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         conversation = [self.dataSource conversationViewController:self conversationWithParticipants:participants];
         if (conversation) return conversation;
     }
-
+    
     NSSet *participantIdentifiers = [participants valueForKey:@"participantIdentifier"];
-
+    
     if (self.shouldCreateDistinctConversation) {
         conversation = [self existingConversationWithParticipantIdentifiers:participantIdentifiers];
         if (conversation) return conversation;
