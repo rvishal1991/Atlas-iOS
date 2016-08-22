@@ -226,11 +226,18 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
 - (void)setupConversationDataSource
 {
     
+    //filter groupwise chat
+    
+    NSSet *sFamiles = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"families"]];
     
     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
-    query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:self.layerClient.authenticatedUserID];
+    // query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:self.layerClient.authenticatedUserID];
     
-    NSLog(@"layerId-%@",self.layerClient.authenticatedUserID);
+    LYRPredicate *partPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:sFamiles];
+    
+    LYRPredicate *selfPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.layerClient.authenticatedUserID];
+    
+    query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[partPredicate, selfPredicate]];
     
     query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
     
