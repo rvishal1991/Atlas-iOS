@@ -225,7 +225,6 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
 
 - (void)setupConversationDataSource
 {
-    
     //filter groupwise chat
     
     NSSet *sFamiles = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"families"]];
@@ -235,9 +234,11 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
     
     LYRPredicate *partPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:sFamiles];
     
-    LYRPredicate *selfPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.layerClient.authenticatedUserID];
+   // LYRPredicate *selfPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.layerClient.authenticatedUserID];
+
+    query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[partPredicate]];
     
-    query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[partPredicate, selfPredicate]];
+   // query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[partPredicate, selfPredicate]];
     
     query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
     
@@ -275,6 +276,7 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
     NSString *reuseIdentifier = [self reuseIdentifierForConversation:nil atIndexPath:indexPath];
     
     UITableViewCell<ATLConversationPresenting> *conversationCell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
+    
     [self configureCell:conversationCell atIndexPath:indexPath];
     return conversationCell;
 }
@@ -289,8 +291,7 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
 - (void)configureCell:(UITableViewCell<ATLConversationPresenting> *)conversationCell atIndexPath:(NSIndexPath *)indexPath
 {
     LYRConversation *conversation = [self.queryController objectAtIndexPath:indexPath];
-    
-    NSLog(@"%@",conversation);
+        
     [conversationCell presentConversation:conversation];
     
     if (self.displaysAvatarItem) {
@@ -489,19 +490,31 @@ NSString *const ATLConversationListViewControllerDeletionModeEveryone = @"Everyo
     [tableView registerClass:self.cellClass forCellReuseIdentifier:ATLConversationCellReuseIdentifier];
 }
 
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    NSLog(@"Cancel");
+    //[self.tableView reloadData];
+}
+
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
 {
     if ([self.delegate respondsToSelector:@selector(conversationListViewController:didSearchForText:completion:)]) {
         [self.delegate conversationListViewController:self didSearchForText:searchString completion:^(NSSet *filteredParticipants) {
             if (![searchString isEqualToString:controller.searchBar.text]) return;
             NSSet *participantIdentifiers = [filteredParticipants valueForKey:@"participantIdentifier"];
-            
+            NSSet *sFamiles = [NSSet setWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"families"]];
+
             LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
             
             LYRPredicate *participantsPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:participantIdentifiers];
+            
             LYRPredicate *titlePredicate = [LYRPredicate predicateWithProperty:@"metadata.title" predicateOperator:LYRPredicateOperatorIsEqualTo value:searchString];
             
             query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[participantsPredicate, titlePredicate]];
+            
+//            LYRPredicate *partPredicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:sFamiles];
+//            
+//            
+//            query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeOr subpredicates:@[partPredicate]];
             
             query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
             NSError *error;
